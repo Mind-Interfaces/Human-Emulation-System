@@ -4,7 +4,7 @@ https://lablab.ai/event/autonomous-agents-hackathon/mind-interfaces
 
 # I. Introduction:
 
-   The Human Emulation System (HES) is a groundbreaking artificial intelligence system designed to mimic human cognition by dividing thinking into logical and creative components. Inspired by the structure of the human brain, HES symbolizes analytical thinking through the left hemisphere and creative thinking through the right hemisphere. The system offers a unique platform for understanding and exploring multifaceted human intelligence, bridging technology with cognitive science, and has potential applications in education, creative problem-solving, and human-computer interaction.
+   The Human Emulation System (HES) is an artificial intelligence system designed to mimic human cognition by dividing thinking into logical and creative components. Inspired by the structure of the human brain, HES symbolizes analytical thinking through the left hemisphere and creative thinking through the right hemisphere. The system offers a unique platform for understanding and exploring multifaceted human intelligence, bridging technology with cognitive science, and has potential applications in education, creative problem-solving, and human-computer interaction.
 
 # II. System Components:
 
@@ -23,12 +23,12 @@ https://lablab.ai/event/autonomous-agents-hackathon/mind-interfaces
 # III. Chat History Management:
 
    - Purpose: Maintains conversational context, enhancing system responsiveness and understanding.
-   - Technique: Integrates chat history within the mid-brain's queries, providing continuity and relevance.
+   - Technique: Integrates chat history within the midbrain's queries, providing continuity and relevance.
 
 # IV. Gradio Interface:
 
    - Purpose: Offers a user-friendly platform for interactive exploration.
-   - Design: Features an instant messenger-like chat interface, an options for tuning responses.
+   - Design: Features an instant messenger-like chat interface, and options for tuning responses.
 
 # V. Theoretical Foundations:
 
