@@ -1,8 +1,6 @@
-# Human-Emulation-System
+# Human Emulation System (HES) 
 
 https://lablab.ai/event/autonomous-agents-hackathon/mind-interfaces
-
-# Human Emulation System (HES) - Web User Interface (UI)
 
 # I. Introduction:
 
