@@ -13,13 +13,13 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 class HumanEmulationSystem:
     def __init__(self):
         # Define configuration settings.
-        self.DEBUG = True  # Set to True to show API calls
+        self.DEBUG = False  # Set to True to show API calls
 
         # Configure logging.
         logging.basicConfig(level=logging.DEBUG if self.DEBUG else logging.INFO)
         self.chat_history = ""
 
-        # Setup LLM configuration and key (replace with your access token)
+        ## Setup LLM configuration and API key (replace with your API key)
         self.access_token = "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"
 
         self.tokenizer = AutoTokenizer.from_pretrained(
@@ -56,14 +56,19 @@ class HumanEmulationSystem:
             logging.debug(message)
 
     def generate_response_stablecode(self, instruction):
-        inputs = self.tokenizer(instruction, return_tensors="pt").to("cuda")
+        inputs = self.tokenizer(instruction, return_tensors="pt", padding="max_length", truncation=True, max_length=2048)
+        inputs = inputs.to("cuda")
+        input_ids = inputs["input_ids"]
+        attention_mask = inputs["attention_mask"]
         tokens = self.model.generate(
-          **inputs,
-          max_new_tokens=2048,
-          temperature=1,
-          do_sample=True,
+            input_ids=input_ids,
+            attention_mask=attention_mask,
+            max_length=2048,
+            temperature=1,
+            do_sample=True,
         )
         return self.tokenizer.decode(tokens[0], skip_special_tokens=True)
+
 
     def call_left_hemisphere(self, prompt, left_lobe):
         instruction = f"###Instruction\n{left_lobe}\n###Response\n{prompt}"
@@ -90,11 +95,9 @@ class HumanEmulationSystem:
 
 # Separate functions for left and right hemispheres maintaining distinct workflow paths.
 
-%%time
 # Create an instance of the Human Emulation System
 HES = HumanEmulationSystem()
 
-%%time
 # Initialize Gradio Web GUI
 GUI = Interface(
     HES.call_model,
