@@ -37,7 +37,7 @@ class HumanEmulationSystem:
     def chat_log(chat, prompt, mid_result):
         log = f"{chat}User(Input): {prompt}\nSystem(Output): {mid_result}\n"
         return log
-        
+
     def log_debug(self, message):
         # Send debug output to console.
         if self.DEBUG:
@@ -50,10 +50,10 @@ class HumanEmulationSystem:
             "messages": [{"role": "system", "content": left_lobe},
                          {"role": "user", "content": prompt}],
             "max_tokens": 250,
-        }    
+        }
         self.log_debug(f"Left Hemisphere Request: {request_params}")
         response = openai.ChatCompletion.create(**request_params)
-        self.log_debug(f"Left Hemisphere Response: {response}")        
+        self.log_debug(f"Left Hemisphere Response: {response}")
         return response.choices[0].message['content']
 
     def call_right_hemisphere(self, prompt, right_lobe):
@@ -83,7 +83,8 @@ class HumanEmulationSystem:
         # Generate a moderated response.
         request_params_mid = {
             "model": self.openai_model,
-            "messages": [{"role": "system", "content": moderator}, {"role": "user", "content": combined}],
+            "messages": [{"role": "system", "content": moderator},
+                         {"role": "user", "content": combined}],
             "max_tokens": 500,
         }
         self.log_debug(f"Mid Brain Request: {request_params_mid}")
@@ -91,7 +92,7 @@ class HumanEmulationSystem:
         self.log_debug(f"Mid Brain Response: {response_mid}")
         # Compile conversation for chat log and display Response.
         mid_result = response_mid.choices[0].message['content']
-        self.chat_history = self.chat_log(self.chat_history, prompt, mid_result)     
+        self.chat_history = self.chat_log(self.chat_history, prompt, mid_result)
         return self.chat_history, left_result, right_result, mid_result
 
 
