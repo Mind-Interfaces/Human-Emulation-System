@@ -27,16 +27,16 @@ class HumanEmulationSystem:
         self.model.cuda()
 
         # Set cognitive contexts.
-        self.context_left = "PEP8, Analytic Logic, Best Coding Practice "
-        self.context_right = "Creative, Symbolic, Expressive Code Structure "
-        self.context_mid = "Polymath, Integrated, Production Quality "
+        self.context_left = "Analytic Logic, Best Coding Practice, PEP8"
+        self.context_right = "Creative Style, Expressive Code Structure"
+        self.context_mid = "Integrated Solution, Production Quality: 100%"
         
         # Configure logging.
         self.chat_history = ""
         
     @staticmethod
-    def chat_log(chat, prompt, mid_result):
-        log = f"{chat}{mid_result}\n"
+    def chat_log(chat, prompt, mid_response):
+        log = f"{chat}[Instruction:] \n{prompt}\n[Response:] {mid_response}\n"
         return log
 
     def generate_response_stablecode(self, instruction):
@@ -48,7 +48,7 @@ class HumanEmulationSystem:
             input_ids=input_ids,
             attention_mask=attention_mask,
             max_length=2000,
-            temperature=0.1,
+            temperature=0.5,
             pad_token_id=self.tokenizer.eos_token_id,
             do_sample=True,
         )
@@ -63,7 +63,7 @@ class HumanEmulationSystem:
             input_ids=input_ids,
             attention_mask=attention_mask,
             max_length=4000,
-            temperature=0.5,
+            temperature=0.1,
             pad_token_id=self.tokenizer.eos_token_id,
             do_sample=True,
         )
@@ -71,27 +71,35 @@ class HumanEmulationSystem:
 
 
     def call_left_hemisphere(self, prompt, left_lobe):
-        instruction = f"SYSTEM: {left_lobe}\n###Instruction: {prompt}\n###Response: "
+        instruction = f"System: {left_lobe}\n###Instruction: {prompt}\n###Response: "
         response = self.generate_response_stablecode(instruction)
         return response
 
     def call_right_hemisphere(self, prompt, right_lobe):
-        instruction = f"SYSTEM: {right_lobe}\n###Instruction: {prompt}\n###Response: "
+        instruction = f"System: {right_lobe}\n###Instruction: {prompt}\n###Response: "
         response = self.generate_response_stablecode(instruction)
         return response
 
     def call_model(self, prompt, left_lobe, right_lobe, response_moderator):
+        # Build Logical and Creative Examples
         left_result = self.call_left_hemisphere(prompt, left_lobe)
         right_result = self.call_right_hemisphere(prompt, right_lobe)
-        combined = f"###Response 1: {left_result}\n"
-        combined += f"###Resonse 2: {right_result}\n"
-        combined += "###Response 3: "
+        
+        # Load Conversation Context
         chat_window = f"{self.chat_history}"
-        moderator = response_moderator         
-        mid_instruction = f"{chat_window}SYSTEM: {moderator}\n"
-        mid_instruction += f"###Instruction: {prompt}\n{combined}"
+        
+        # Train Response Pattern with Examples
+        combined = f"[(###Example: [{left_result}])]\n"
+        combined += f"[(###Example: [{right_result}])]\n"
+        
+        # Load Response Moderator to Compile Examples
+        mid_instruction = f"{chat_window}{combined}System: {response_moderator}\n"
+        mid_instruction += f"###Instruction: {prompt}\n###Response: "
         mid_result = self.generate_final_response(mid_instruction)
-        self.chat_history = self.chat_log(self.chat_history, prompt, mid_result)
+        
+        # Isolate Final Response to Log
+        mid_response = mid_result[len(mid_instruction):]
+        self.chat_history = self.chat_log(self.chat_history, prompt, mid_response)
         return self.chat_history, left_result, right_result, mid_result
 
 # Separate functions for left and right hemispheres maintaining distinct workflow paths.
