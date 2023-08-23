@@ -36,18 +36,13 @@ class HumanEmulationSystem:
         self.model.cuda()
 
         # Set cognitive contexts.
-        self.context_left = "Analytic Logic, Data-Driven Thinking, Focusing on Facts and Evidence"
-        self.context_right = "Creative Reasoning, Intuition, Symbolic Linking, Exploring Possibilities"
-        self.context_mid = "Polymath, Seamless Viewpoint Integration, Focused on Essential Aspects"
-
-        # Set moderator modifiers.
-        self.format_mod = " (Keep your response short, on topic, well balanced and concise.) "
-        self.negative_mod = "[DO NOT IDENTIFY AS an LLM, AI, language model, or AI language model]"
-        self.modifiers = self.format_mod + self.negative_mod
+        self.context_left = "Analytic Logic, Data-Driven, Focusing on Best Coding Practice "
+        self.context_right = "Creative Reasoning, Symbolic Linking, Expressive Coding Style "
+        self.context_mid = "Polymath Validator, Seamless Example Integration, Perfect Format "
 
     @staticmethod
     def chat_log(chat, prompt, mid_result):
-        log = f"{chat}User(Input): {prompt}\nSystem(Output): {mid_result}\n"
+        log = f"{chat}{mid_result}\n"
         return log
 
     def log_debug(self, message):
@@ -56,14 +51,29 @@ class HumanEmulationSystem:
             logging.debug(message)
 
     def generate_response_stablecode(self, instruction):
-        inputs = self.tokenizer(instruction, return_tensors="pt", padding="max_length", truncation=True, max_length=2048)
+        inputs = self.tokenizer(instruction, return_tensors="pt", return_token_type_ids=False)
         inputs = inputs.to("cuda")
         input_ids = inputs["input_ids"]
         attention_mask = inputs["attention_mask"]
         tokens = self.model.generate(
             input_ids=input_ids,
             attention_mask=attention_mask,
-            max_length=2048,
+            max_length=4096,
+            temperature=1,
+            eos_token_id=self.tokenizer.eos_token_id,
+            do_sample=True,
+        )
+        return self.tokenizer.decode(tokens[0], skip_special_tokens=True)
+    
+    def generate_final_response(self, instruction):
+        inputs = self.tokenizer(instruction, return_tensors="pt", return_token_type_ids=False)
+        inputs = inputs.to("cuda")
+        input_ids = inputs["input_ids"]
+        attention_mask = inputs["attention_mask"]
+        tokens = self.model.generate(
+            input_ids=input_ids,
+            attention_mask=attention_mask,
+            max_length=4096,
             temperature=1,
             do_sample=True,
         )
@@ -71,25 +81,26 @@ class HumanEmulationSystem:
 
 
     def call_left_hemisphere(self, prompt, left_lobe):
-        instruction = f"###Instruction\n{left_lobe}\n###Response\n{prompt}"
+        instruction = f"SYSTEM: {left_lobe}\n###Instruction: {prompt}\n###Response: "
         response = self.generate_response_stablecode(instruction)
         return response
 
     def call_right_hemisphere(self, prompt, right_lobe):
-        instruction = f"###Instruction\n{right_lobe}\n###Response\n{prompt}"
+        instruction = f"SYSTEM: {right_lobe}\n###Instruction: {prompt}\n###Response: "
         response = self.generate_response_stablecode(instruction)
         return response
 
     def call_model(self, prompt, left_lobe, right_lobe, response_moderator):
         left_result = self.call_left_hemisphere(prompt, left_lobe)
         right_result = self.call_right_hemisphere(prompt, right_lobe)
-        combined = f"{self.chat_history}\nQuery(Input): {prompt}\n"
-        combined += f"[Left Hemisphere(Internal): {left_result}]\n"
-        combined += f"[Right Hemisphere(Internal): {right_result}]\n"
-        combined += "Response(Output):"
-        moderator = response_moderator + self.modifiers
-        mid_instruction = f"###Instruction\n{moderator}\n###Response\n{combined}"
-        mid_result = self.generate_response_stablecode(mid_instruction)
+        combined = f"###Example: {left_result}\n"
+        combined += f"###Example: {right_result}\n"
+        combined += "###Response: "
+        chat_window = f"{self.chat_history}"
+        moderator = response_moderator         
+        mid_instruction = f"{chat_window}###SYSTEM: {moderator}\n"
+        mid_instruction += f"###Instruction: {prompt}\n{combined}"
+        mid_result = self.generate_final_response(mid_instruction)
         self.chat_history = self.chat_log(self.chat_history, prompt, mid_result)
         return self.chat_history, left_result, right_result, mid_result
 
