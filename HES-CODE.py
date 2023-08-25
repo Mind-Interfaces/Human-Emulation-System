@@ -30,10 +30,10 @@ class HumanEmulationSystem:
         self.context_left = "Analytic Logic, Best Coding Practice, PEP8"
         self.context_right = "Creative Style, Expressive Code Structure"
         self.context_mid = "Integrated Solution, Production Quality: 100%"
-        
+
         # Configure logging.
         self.chat_history = ""
-        
+
     @staticmethod
     def chat_log(chat, prompt, mid_response):
         log = f"{chat}[Instruction:] \n{prompt}\n[Response:] {mid_response}\n"
@@ -53,7 +53,7 @@ class HumanEmulationSystem:
             do_sample=True,
         )
         return self.tokenizer.decode(tokens[0], skip_special_tokens=True)
-    
+
     def generate_final_response(self, instruction):
         inputs = self.tokenizer(instruction, return_tensors="pt", return_token_type_ids=False)
         inputs = inputs.to("cuda")
@@ -84,19 +84,19 @@ class HumanEmulationSystem:
         # Build Logical and Creative Examples
         left_result = self.call_left_hemisphere(prompt, left_lobe)
         right_result = self.call_right_hemisphere(prompt, right_lobe)
-        
+
         # Load Conversation Context
         chat_window = f"{self.chat_history}"
-        
+
         # Train Response Pattern with Examples
         combined = f"[(###Example: [{left_result}])]\n"
         combined += f"[(###Example: [{right_result}])]\n"
-        
+
         # Load Response Moderator to Compile Examples
         mid_instruction = f"{chat_window}{combined}System: {response_moderator}\n"
         mid_instruction += f"###Instruction: {prompt}\n###Response: "
         mid_result = self.generate_final_response(mid_instruction)
-        
+
         # Isolate Final Response to Log
         mid_response = mid_result[len(mid_instruction):]
         self.chat_history = self.chat_log(self.chat_history, prompt, mid_response)
