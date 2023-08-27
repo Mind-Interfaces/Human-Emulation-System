@@ -50,18 +50,19 @@ class HumanEmulationSystem:
 
     def generate_response(self, text_input):
         """Generate a text response."""
-        # Use CodeLlama as logic model.
+        # Use CodeLlama as a logic model.
         logic_response = self.get_clarifai_response('CodeLlama-7B-Instruct-GPTQ', 'clarifai', 'ml', text_input)
 
-        # Use Orca as reason model.
+        # Use Orca as a reason model.
         reason_response = self.get_clarifai_response('orca_mini_v3_13B-GPTQ', 'clarifai', 'ml', text_input)
 
         # META to Combine responses.
         combined_response = f"(Logical Response: {logic_response})\n(Creative Response: {reason_response})"
         combined_input = f"Instruction: {text_input}]\n[Integrate both of the responses into a unified response:"
         combined_input += f"\n{combined_response}]\n[Combine the two responses into a single, cohesive response:]\n"
+        combined_input += f"[Sanitize response output. DO NOT use special tokens or html unless specifically asked:]\n"
 
-        # Use Llama chat model to recompile response.
+        # Use Llama chat model to recompile the response.
         # response = self.get_clarifai_response('llama2-70b-chat', 'meta', 'Llama-2', combined_input)
         response = self.get_clarifai_response('llama2-13b-chat', 'meta', 'Llama-2', combined_input)
 
