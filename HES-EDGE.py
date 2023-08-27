@@ -56,7 +56,7 @@ class HumanEmulationSystem:
         # Use Orca as reason model.
         reason_response = self.get_clarifai_response('orca_mini_v3_13B-GPTQ', 'clarifai', 'ml', text_input)
 
-       # META to Combine responses.
+        # META to Combine responses.
         combined_response = f"(Logical Response: {logic_response})\n(Creative Response: {reason_response})"
         combined_input = f"Instruction: {text_input}]\n[Integrate both of the responses into a unified response:"
         combined_input += f"\n{combined_response}]\n[Combine the two responses into a single, cohesive response:]\n"
