@@ -30,12 +30,12 @@ class HumanEmulationSystem:
 
         # Configure logging.
         self.chat_history = ""
-        
+
     @staticmethod
     def chat_log(chat, prompt, mid_result):
         log = f"{chat}User(Input): {prompt}\nSystem(Output): {mid_result}\n"
         return log
-        
+
     def get_clarifai_response(self, model_id, user_id, app_id, text_input):
         """Fetch response from Clarifai model."""
         try:
@@ -58,7 +58,7 @@ class HumanEmulationSystem:
             )
             if post_model_outputs_response.status.code != status_code_pb2.SUCCESS:
                 raise Exception(f"Post model outputs failed, status: {post_model_outputs_response.status.description}")
-            
+
             return post_model_outputs_response.outputs[0].data.text.raw
         except Exception as e:
             return None
@@ -67,10 +67,10 @@ class HumanEmulationSystem:
         """Generate a text response."""
         # Use CodeLlama as logic model.
         logic_response = self.get_clarifai_response('CodeLlama-7B-Instruct-GPTQ', 'clarifai', 'ml', text_input)
-        
+
         # Use Orca as reason model.
         reason_response = self.get_clarifai_response('orca_mini_v3_13B-GPTQ', 'clarifai', 'ml', text_input)
-        
+
         # META to Combine responses.
         combined_response = f"[INST: {context_left}] Logical Response(Internal):[/INST] {logic_response}\n"
         combined_response += f"[INST: {context_right}] Creative Response(Internal):[/INST] {reason_response}\n"
